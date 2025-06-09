@@ -18,7 +18,7 @@ export class HttpError extends Error {
   }
 }
 
-class HttpUtil {
+class HttpBase {
   private defaultHeaders: Record<string, string>;
   private readonly baseUrl: string = "";
 
@@ -89,4 +89,4 @@ class HttpUtil {
   }
 }
 
-export const jpHttp = new HttpUtil(`${process.env.NEXT_PUBLIC_JSON_PLACEHOLDER_URL}`);
+export const jpHttp = new HttpBase(`${process.env.NEXT_PUBLIC_JSON_PLACEHOLDER_URL}`);
