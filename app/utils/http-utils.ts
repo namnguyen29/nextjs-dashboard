@@ -1,21 +1,18 @@
-export type HttpErrorMessage = {
-  status: number;
-  message: string;
-};
+import { HttpErrorMessage } from "../types";
 
-class HttpUtilError extends Error {
+export class HttpError extends Error {
+  private readonly status: number;
   private readonly errorMessage: string;
-  private readonly httpStatus: number;
 
-  constructor(statusText: string, status: number) {
-    super();
-    this.errorMessage = statusText;
-    this.httpStatus = status;
+  constructor(message: string, status: number) {
+    super(message);
+    this.errorMessage = message;
+    this.status = status;
   }
 
-  get httpErrorMessage(): HttpErrorMessage {
+  get httpError(): HttpErrorMessage {
     return {
-      status: this.httpStatus,
+      status: this.status,
       message: this.errorMessage,
     };
   }
@@ -24,8 +21,13 @@ class HttpUtilError extends Error {
 class HttpUtil {
   private defaultHeaders: Record<string, string>;
   private readonly baseUrl: string = "";
+
   constructor(baseUrl: string, defaultHeaders: Record<string, string> = {}) {
-    this.baseUrl = baseUrl;
+    if (!baseUrl) {
+      this.baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}`;
+    } else {
+      this.baseUrl = baseUrl;
+    }
     this.defaultHeaders = {
       "Content-type": "application/json; charset=UTF-8",
       Accept: "application/json",
@@ -81,8 +83,7 @@ class HttpUtil {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const error = new HttpUtilError(response.statusText, response.status);
-      throw error.httpErrorMessage;
+      throw new HttpError(response.statusText, response.status);
     }
     return response.json() as Promise<T>;
   }
