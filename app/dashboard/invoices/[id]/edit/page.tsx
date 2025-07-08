@@ -1,6 +1,7 @@
+import { notFound } from "next/navigation";
+import { fetchInvoiceById, fetchCustomers } from "@/app/lib/data";
 import Form from "@/app/ui/invoices/edit-form";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
-import { fetchInvoiceById, fetchCustomers } from "@/app/lib/data";
 
 type Props = {
   readonly params: Promise<{ id: string }>;
@@ -9,6 +10,10 @@ type Props = {
 export default async function Page(props: Props) {
   const id = (await props.params).id;
   const [invoice, customers] = await Promise.all([fetchInvoiceById(id), fetchCustomers()]);
+
+  if (!invoice) {
+    notFound();
+  }
 
   return (
     <main>
