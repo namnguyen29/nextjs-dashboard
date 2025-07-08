@@ -25,9 +25,8 @@ export function UpdateInvoice({ id }: { readonly id: string }) {
 }
 
 export function DeleteInvoice({ id }: { readonly id: string }) {
-  const deleteInvoiceWithId = () => deleteInvoice(id);
   return (
-    <form action={deleteInvoiceWithId}>
+    <form action={deleteInvoice.bind(null, id)}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />
