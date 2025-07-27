@@ -10,7 +10,7 @@ export default function Search({ placeholder }: { readonly placeholder: string }
   const router = useRouter();
   const defaultQuery = params.get("query")?.toString() ?? "";
 
-  const handleSearch = useDebounce((value: string): void => {
+  const handleSearch = useDebounce((value: string) => {
     params.set("page", "1");
     if (value) {
       params.set("query", value);
