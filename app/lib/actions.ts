@@ -1,6 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import postgres from "postgres";
 
@@ -20,7 +22,11 @@ const FormSchema = z.object({
   customerId: z.string({
     invalid_type_error: "Please select a customer.",
   }),
-  amount: z.coerce.number().gt(0, { message: "Please enter an amount greater than $0." }),
+  amount: z.coerce
+    .number({
+      message: "Amount is required and must be a number.",
+    })
+    .gt(0, { message: "Please enter an amount greater than $0." }),
   status: z.enum(["pending", "paid"], {
     invalid_type_error: "Please select an invoice status.",
   }),
@@ -30,10 +36,10 @@ const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = CreateInvoice;
 
 export async function createInvoice(_prevState: State, formData: FormData) {
-  // Validate form using Zod
+  const rawAmount = formData.get("amount") === "" ? undefined : formData.get("amount");
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get("customerId"),
-    amount: formData.get("amount"),
+    amount: rawAmount,
     status: formData.get("status"),
   });
 
@@ -111,3 +117,16 @@ export const deleteInvoice = async (id: string) => {
   await sql`DELETE FROM invoices WHERE id = ${id}`;
   revalidatePath("/dashboard/invoices");
 };
+
+export async function authenticate(_prevState: string | undefined, formData: FormData) {
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      if (error.type === "CredentialsSignin") return "Invalid credentials.";
+
+      return "Something went wrong.";
+    }
+    throw error;
+  }
+}

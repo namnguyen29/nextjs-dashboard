@@ -7,7 +7,7 @@ import RevenueChart from "@/app/ui/dashboard/revenue-chart";
 import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
 
 export const metadata: Metadata = {
-  title: "Dashboard | Acme Dashboard",
+  title: "Dashboard",
 };
 
 export default function Page() {
